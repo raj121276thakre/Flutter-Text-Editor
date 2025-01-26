@@ -9,22 +9,19 @@ class NoteScreen extends StatefulWidget {
   @override
   _NoteScreenState createState() => _NoteScreenState();
 }
+
 class _NoteScreenState extends State<NoteScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  late TextEditingController _textController;
 
   @override
   void initState() {
     super.initState();
-    _textController = TextEditingController();
     _loadNotes();
   }
 
   Future<void> _loadNotes() async {
     await Provider.of<NoteProvider>(context, listen: false)
         .loadNotesFromDatabase();
-    _textController.text = Provider.of<NoteProvider>(context, listen: false)
-        .currentNoteContent; // Update controller with current note content
   }
 
   @override
@@ -33,31 +30,33 @@ class _NoteScreenState extends State<NoteScreen> {
 
     return Scaffold(
       key: _scaffoldKey,
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
+      drawer: SafeArea(
+        child: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              // DrawerHeader(
+              //   decoration: BoxDecoration(
+              //     color: Theme.of(context).colorScheme.primary,
+              //   ),
+              //   child: const Text(
+              //     'Settings',
+              //     style: TextStyle(
+              //       color: Colors.white,
+              //       fontSize: 20,
+              //     ),
+              //   ),
+              // ),
+              SwitchListTile(
+                title: const Text('Dark Mode'),
+                value: Provider.of<ThemeProvider>(context).isDarkMode,
+                onChanged: (value) {
+                  Provider.of<ThemeProvider>(context, listen: false)
+                      .toggleTheme(value);
+                },
               ),
-              child: const Text(
-                'Settings',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                ),
-              ),
-            ),
-            SwitchListTile(
-              title: const Text('Dark Mode'),
-              value: Provider.of<ThemeProvider>(context).isDarkMode,
-              onChanged: (value) {
-                Provider.of<ThemeProvider>(context, listen: false)
-                    .toggleTheme(value);
-              },
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       body: SafeArea(
@@ -161,12 +160,10 @@ class _NoteScreenState extends State<NoteScreen> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: TextField(
-                          controller: _textController, // Use controller here
+                          controller: noteProvider.currentNoteController,
                           maxLines: null,
                           expands: true,
-                          onChanged: (text) {
-                            noteProvider.updateCurrentNoteContent(text); // Update content in provider
-                          },
+                          onChanged: noteProvider.updateCurrentNoteContent,
                           decoration: const InputDecoration(
                             hintText: "Write your notes here...",
                             border: InputBorder.none,
@@ -185,4 +182,3 @@ class _NoteScreenState extends State<NoteScreen> {
     );
   }
 }
-

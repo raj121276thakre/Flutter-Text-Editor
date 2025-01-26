@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 import '../Models/note.dart';
 import '../Database/note_database.dart';
+
 class NoteProvider with ChangeNotifier {
   List<Note> _notes = [];
   int _currentNoteIndex = -1;
@@ -26,14 +27,6 @@ class NoteProvider with ChangeNotifier {
     _controllers[_currentNoteIndex] ??= TextEditingController(
         text: _notes[_currentNoteIndex].content);
     return _controllers[_currentNoteIndex]!;
-  }
-
-  // Getter for the content of the current note
-  String get currentNoteContent {
-    if (_currentNoteIndex == -1) {
-      return ''; // If no note is selected, return an empty string
-    }
-    return _notes[_currentNoteIndex].content;
   }
 
   // Load notes from the database
