@@ -104,7 +104,9 @@ class _NoteScreenState extends State<NoteScreen> {
               themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
               color: theme.colorScheme.onPrimary,
             ),
-            tooltip: themeProvider.isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode",
+            tooltip: themeProvider.isDarkMode
+                ? "Switch to Light Mode"
+                : "Switch to Dark Mode",
             onPressed: () {
               themeProvider.toggleTheme(!themeProvider.isDarkMode);
             },
@@ -112,116 +114,147 @@ class _NoteScreenState extends State<NoteScreen> {
         ],
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            // Custom Tabs Section (Horizontal Buttons)
-            Container(
-              // color: theme.colorScheme.background,
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
+        child: noteProvider.notes.isEmpty
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    ...List.generate(
-                      noteProvider.notes.length,
-                      (index) {
-                        final isSelected =
-                            index == noteProvider.currentNoteIndex;
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: theme.colorScheme.background,
-                              foregroundColor: isSelected
-                                  ? theme.colorScheme.primary
-                                  : theme.colorScheme.onSurface,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.0),
-                                side: BorderSide(
-                                  color: isSelected
-                                      ? theme.colorScheme.primary
-                                      : Colors.grey.shade300,
+                    ClipOval(
+                      child: Image.asset(
+                        'assets/images/no_notes.png', // Ensure this image is added to the assets folder and listed in pubspec.yaml
+                        height: 200,
+                        width: 200,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      "No notes created",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      "Please create a note by clicking on +",
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              )
+            : Column(
+                children: [
+                  // Custom Tabs Section (Horizontal Buttons)
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          ...List.generate(
+                            noteProvider.notes.length,
+                            (index) {
+                              final isSelected =
+                                  index == noteProvider.currentNoteIndex;
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 6.0),
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        theme.colorScheme.background,
+                                    foregroundColor: isSelected
+                                        ? theme.colorScheme.primary
+                                        : theme.colorScheme.onSurface,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12.0),
+                                      side: BorderSide(
+                                        color: isSelected
+                                            ? theme.colorScheme.primary
+                                            : Colors.grey.shade300,
+                                      ),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  onPressed: () =>
+                                      noteProvider.selectNote(index),
+                                  child: Text(
+                                    noteProvider.notes[index].title,
+                                    style: TextStyle(
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              elevation: 0,
-                            ),
-                            onPressed: () => noteProvider.selectNote(index),
-                            child: Text(
-                              noteProvider.notes[index].title,
-                              style: TextStyle(
-                                fontWeight: isSelected
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                            ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            // Note Editor Section with Download Button
-            Expanded(
-              child: Container(
-                 margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surface,
-                  borderRadius: BorderRadius.circular(16.0),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 8.0,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Stack(
-                  children: [
-                    // TextField for Note Editing
-                    TextField(
-                      controller: noteProvider.notes.isNotEmpty
-                          ? noteProvider.currentNoteController
-                          : null,
-                      maxLines: null,
-                      expands: true,
-                      onChanged: noteProvider.updateCurrentNoteContent,
-                      decoration: const InputDecoration(
-                        hintText: "Write your notes here...",
-                        border: InputBorder.none,
+                        ],
                       ),
-                      style: theme.textTheme.bodyLarge,
                     ),
-                    // Download Icon Positioned in the Top-Right Corner
-                    if (noteProvider.notes.isNotEmpty)
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: IconButton(
-                          onPressed: () {
-                            final currentNote =
-                                noteProvider.notes[noteProvider.currentNoteIndex];
-                            _generateAndOpenPDF(
-                              currentNote.content,
-                              currentNote.title,
-                            );
-                          },
-                          icon: const Icon(
-                            Icons.download,
-                            color: Colors.grey,
-                            size: 28,
+                  ),
+                  // Note Editor Section with Download Button
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface,
+                        borderRadius: BorderRadius.circular(16.0),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8.0,
+                            offset: Offset(0, 4),
                           ),
-                          tooltip: "Download as PDF",
-                        ),
+                        ],
                       ),
-                  ],
-                ),
+                      child: Stack(
+                        children: [
+                          // TextField for Note Editing
+                          TextField(
+                            controller: noteProvider.notes.isNotEmpty
+                                ? noteProvider.currentNoteController
+                                : null,
+                            maxLines: null,
+                            expands: true,
+                            onChanged: noteProvider.updateCurrentNoteContent,
+                            decoration: const InputDecoration(
+                              hintText: "Write your notes here...",
+                              border: InputBorder.none,
+                            ),
+                            style: theme.textTheme.bodyLarge,
+                          ),
+                          // Download Icon Positioned in the Top-Right Corner
+                          if (noteProvider.notes.isNotEmpty)
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: IconButton(
+                                onPressed: () {
+                                  final currentNote = noteProvider
+                                      .notes[noteProvider.currentNoteIndex];
+                                  _generateAndOpenPDF(
+                                    currentNote.content,
+                                    currentNote.title,
+                                  );
+                                },
+                                icon: const Icon(
+                                  Icons.download,
+                                  color: Colors.grey,
+                                  size: 28,
+                                ),
+                                tooltip: "Download as PDF",
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
@@ -264,7 +297,8 @@ class _NoteScreenState extends State<NoteScreen> {
               });
             },
             backgroundColor: theme.colorScheme.primary,
-            child: Icon(_isFabExpanded ? Icons.close : Icons.add, color: Colors.white),
+            child: Icon(_isFabExpanded ? Icons.close : Icons.add,
+                color: Colors.white),
           ),
         ],
       ),
