@@ -16,6 +16,11 @@ class NoteScreen extends StatefulWidget {
 
 class _NoteScreenState extends State<NoteScreen> {
   bool _isFabExpanded = false; // To track FAB expansion
+  TextAlign _currentTextAlign = TextAlign.left; // Track text alignment
+  double _currentFontSize = 16.0; // Track font size
+  bool _isBold = false; // Track bold toggle
+  bool _isItalic = false; // Track italic toggle
+  Color _currentFillColor = Colors.transparent; // Track text fill color
 
   @override
   void initState() {
@@ -134,26 +139,24 @@ class _NoteScreenState extends State<NoteScreen> {
                 color: theme.colorScheme.primary,
               ),
               child: Column(
-           
-            children: [
-              ClipOval(
-                child: Image.asset(
-                  "assets/icon/icon.png", // Path to your custom image
-                  width: 100,
-                  height: 100,
-                  fit: BoxFit.cover,
-                ),
+                children: [
+                  ClipOval(
+                    child: Image.asset(
+                      "assets/icon/icon.png", // Path to your custom image
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Text(
+                    'NotePad App',
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onPrimary),
+                  ),
+                ],
               ),
-          
-              Text(
-                'NotePad App',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onPrimary),
-              ),
-            ],
-          ),
             ),
             ListTile(
               leading: Icon(Icons.note_add),
@@ -218,7 +221,7 @@ class _NoteScreenState extends State<NoteScreen> {
                   children: [
                     // Custom Tabs Section (Horizontal Buttons)
                     Container(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      padding: const EdgeInsets.symmetric(vertical: 2.0),
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
@@ -236,14 +239,14 @@ class _NoteScreenState extends State<NoteScreen> {
                                       backgroundColor:
                                           theme.colorScheme.background,
                                       foregroundColor: isSelected
-                                          ? theme.colorScheme.primary
+                                          ? theme.colorScheme.onPrimary
                                           : theme.colorScheme.onSurface,
                                       shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(8.0),
                                         side: BorderSide(
                                           color: isSelected
-                                              ? theme.colorScheme.primary
+                                              ? theme.colorScheme.onPrimary
                                               : const Color.fromARGB(
                                                   255, 27, 26, 26),
                                         ),
@@ -268,6 +271,9 @@ class _NoteScreenState extends State<NoteScreen> {
                         ),
                       ),
                     ),
+
+                   
+
                     // Note Editor Section with Download Button
                     Expanded(
                       child: Container(
@@ -295,11 +301,21 @@ class _NoteScreenState extends State<NoteScreen> {
                               maxLines: null,
                               expands: true,
                               onChanged: noteProvider.updateCurrentNoteContent,
+                              textAlign: _currentTextAlign, // Apply alignment
+                              style: TextStyle(
+                                fontSize: _currentFontSize, // Apply font size
+                                fontWeight: _isBold
+                                    ? FontWeight.bold
+                                    : FontWeight.normal, // Apply bold
+                                fontStyle: _isItalic
+                                    ? FontStyle.italic
+                                    : FontStyle.normal, // Apply italic
+                                color: _currentFillColor, // Apply fill color
+                              ),
                               decoration: const InputDecoration(
                                 hintText: "Write your notes here...",
                                 border: InputBorder.none,
                               ),
-                              style: theme.textTheme.bodyLarge,
                             ),
                             // Download Icon Positioned in the Top-Right Corner
                             if (noteProvider.notes.isNotEmpty)
@@ -327,55 +343,223 @@ class _NoteScreenState extends State<NoteScreen> {
                         ),
                       ),
                     ),
+
+
+
+
+ // Font Options Toolbar
+                    Container(
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(
+                            255, 247, 246, 246), // Background for the toolbar
+                       // Rounded corners
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 6.0,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment
+                            .spaceBetween, // Distribute evenly
+                        children: [
+                          // Bold Button
+                          IconButton(
+                            icon: Icon(
+                              Icons.format_bold,
+                              color: _isBold ? Colors.blue : Colors.black,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isBold = !_isBold;
+                              });
+                            },
+                          ),
+                    
+                          // Italic Button
+                          IconButton(
+                            icon: Icon(
+                              Icons.format_italic,
+                              color: _isItalic ? Colors.blue : Colors.black,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isItalic = !_isItalic;
+                              });
+                            },
+                          ),
+                    
+                    // Fill Color Dropdown
+                          DropdownButton<Color>(
+                            value: _currentFillColor,
+                            items: [
+                              Colors.transparent,
+                              Colors.black,
+                              Colors.yellow,
+                              Colors.green,
+                              Colors.blue,
+                              Colors.red,
+                              Colors.purple,
+                              Colors.orange,
+                              Colors.pink,
+                              Colors.teal,
+                              Colors.brown,
+                              Colors.grey,
+                              Colors.cyan,
+                            ].map((color) {
+                              return DropdownMenuItem<Color>(
+                                value: color,
+                                child: Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    color: color,
+                                    border: Border.all(
+                                        color: Colors
+                                            .black12), // Optional border for visibility
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (color) {
+                              setState(() {
+                                _currentFillColor = color ??
+                                    Colors
+                                        .transparent; // Ensure a valid fallback
+                              });
+                            },
+                          ),
+                    
+                          // Font Size Dropdown
+                          DropdownButton<double>(
+                            value: _currentFontSize,
+                            items: [12, 14, 16, 18, 20, 24]
+                                .map((size) => DropdownMenuItem(
+                                      value: size.toDouble(),
+                                      child: Text(
+                                        "$size",
+                                        style: TextStyle(fontSize: 14.0),
+                                      ),
+                                    ))
+                                .toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                if (value != null) _currentFontSize = value;
+                              });
+                            },
+                          ),
+                    
+                          // Alignment Dropdown
+                          DropdownButton<TextAlign>(
+                            value: _currentTextAlign,
+                            items: [
+                              DropdownMenuItem(
+                                value: TextAlign.left,
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.format_align_left, size: 18),
+                                    SizedBox(width: 6),
+                                    Text("Left"),
+                                  ],
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: TextAlign.center,
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.format_align_center, size: 18),
+                                    SizedBox(width: 6),
+                                    Text("Center"),
+                                  ],
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: TextAlign.right,
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.format_align_right, size: 18),
+                                    SizedBox(width: 6),
+                                    Text("Right"),
+                                  ],
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: TextAlign.justify,
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.format_align_justify,
+                                        size: 18),
+                                    SizedBox(width: 6),
+                                    Text("Justify"),
+                                  ],
+                                ),
+                              ),
+                            ],
+                            onChanged: (align) {
+                              setState(() {
+                                if (align != null) _currentTextAlign = align;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+
                   ],
                 ),
               ),
       ),
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (_isFabExpanded) ...[
-            FloatingActionButton.small(
-              heroTag: "new_note",
-              onPressed: noteProvider.createNewNote,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 55.0, right: 8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            if (_isFabExpanded) ...[
+              FloatingActionButton.small(
+                heroTag: "new_note",
+                onPressed: noteProvider.createNewNote,
+                backgroundColor: theme.colorScheme.primary,
+                child: const Icon(Icons.note_add, color: Colors.white),
+              ),
+              const SizedBox(height: 8),
+              FloatingActionButton.small(
+                heroTag: "undo",
+                onPressed: noteProvider.undo,
+                backgroundColor: theme.colorScheme.primary,
+                child: const Icon(Icons.undo, color: Colors.white),
+              ),
+              const SizedBox(height: 8),
+              FloatingActionButton.small(
+                heroTag: "redo",
+                onPressed: noteProvider.redo,
+                backgroundColor: theme.colorScheme.primary,
+                child: const Icon(Icons.redo, color: Colors.white),
+              ),
+              const SizedBox(height: 8),
+              FloatingActionButton.small(
+                heroTag: "delete",
+                onPressed: noteProvider.deleteCurrentNote,
+                backgroundColor: Colors.redAccent,
+                child: const Icon(Icons.delete, color: Colors.white),
+              ),
+              const SizedBox(height: 8),
+            ],
+            FloatingActionButton(
+              onPressed: () {
+                setState(() {
+                  _isFabExpanded = !_isFabExpanded;
+                });
+              },
               backgroundColor: theme.colorScheme.primary,
-              child: const Icon(Icons.note_add, color: Colors.white),
+              child: Icon(_isFabExpanded ? Icons.close : Icons.add,
+                  color: Colors.white),
             ),
-            const SizedBox(height: 8),
-            FloatingActionButton.small(
-              heroTag: "undo",
-              onPressed: noteProvider.undo,
-              backgroundColor: theme.colorScheme.primary,
-              child: const Icon(Icons.undo, color: Colors.white),
-            ),
-            const SizedBox(height: 8),
-            FloatingActionButton.small(
-              heroTag: "redo",
-              onPressed: noteProvider.redo,
-              backgroundColor: theme.colorScheme.primary,
-              child: const Icon(Icons.redo, color: Colors.white),
-            ),
-            const SizedBox(height: 8),
-            FloatingActionButton.small(
-              heroTag: "delete",
-              onPressed: noteProvider.deleteCurrentNote,
-              backgroundColor: Colors.redAccent,
-              child: const Icon(Icons.delete, color: Colors.white),
-            ),
-            const SizedBox(height: 8),
           ],
-          FloatingActionButton(
-            onPressed: () {
-              setState(() {
-                _isFabExpanded = !_isFabExpanded;
-              });
-            },
-            backgroundColor: theme.colorScheme.primary,
-            child: Icon(_isFabExpanded ? Icons.close : Icons.add,
-                color: Colors.white),
-          ),
-        ],
+        ),
       ),
     );
   }
