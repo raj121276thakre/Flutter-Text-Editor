@@ -11,7 +11,7 @@ class NoteScreen extends StatefulWidget {
 }
 
 class _NoteScreenState extends State<NoteScreen> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _isFabExpanded = false; // To track FAB expansion
 
   @override
   void initState() {
@@ -32,145 +32,172 @@ class _NoteScreenState extends State<NoteScreen> {
   @override
   Widget build(BuildContext context) {
     final noteProvider = Provider.of<NoteProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final theme = Theme.of(context);
 
     return Scaffold(
-      key: _scaffoldKey,
-      drawer: SafeArea(
-        child: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              SwitchListTile(
-                title: const Text('Dark Mode'),
-                value: Provider.of<ThemeProvider>(context).isDarkMode,
-                onChanged: (value) {
-                  Provider.of<ThemeProvider>(context, listen: false)
-                      .toggleTheme(value);
-                },
-              ),
-            ],
+      appBar: AppBar(
+        title: Text(
+          "Notes",
+          style: TextStyle(
+            color: theme.colorScheme.onPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: 20.0,
           ),
         ),
+        centerTitle: true,
+        backgroundColor: theme.colorScheme.primary,
+        elevation: 4.0,
+        actions: [
+          IconButton(
+            icon: Icon(
+              themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+              color: theme.colorScheme.onPrimary,
+            ),
+            tooltip: themeProvider.isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode",
+            onPressed: () {
+              themeProvider.toggleTheme(!themeProvider.isDarkMode);
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: Column(
           children: [
+            // Custom Tabs Section (Horizontal Buttons)
             Container(
-              margin: const EdgeInsets.symmetric(vertical: 8.0),
-              height: 40,
-              padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 2),
-              child: ListView.builder(
+              color: theme.colorScheme.background,
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                itemCount: noteProvider.notes.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == noteProvider.notes.length) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 3.0),
-                      child: ElevatedButton.icon(
-                        onPressed: () => noteProvider.createNewNote(),
-                        icon: const Icon(Icons.add),
-                        label: const Text('New'),
-                      ),
-                    );
-                  }
-
-                  final note = noteProvider.notes[index];
-                  final isSelected = index == noteProvider.currentNoteIndex;
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 3.0),
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: isSelected
-                            ? Theme.of(context).colorScheme.primary
-                            : Colors.grey[200],
-                      ),
-                      icon: Icon(
-                        Icons.edit,
-                        color: isSelected ? Colors.white : Colors.black,
-                      ),
-                      onPressed: () => noteProvider.selectNote(index),
-                      label: Text(
-                        note.title,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.black,
-                        ),
-                      ),
+                child: Row(
+                  children: [
+                    ...List.generate(
+                      noteProvider.notes.length,
+                      (index) {
+                        final isSelected =
+                            index == noteProvider.currentNoteIndex;
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: theme.colorScheme.background,
+                              foregroundColor: isSelected
+                                  ? theme.colorScheme.primary
+                                  : theme.colorScheme.onSurface,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                                side: BorderSide(
+                                  color: isSelected
+                                      ? theme.colorScheme.primary
+                                      : Colors.grey.shade300,
+                                ),
+                              ),
+                              elevation: 0,
+                            ),
+                            onPressed: () => noteProvider.selectNote(index),
+                            child: Text(
+                              noteProvider.notes[index].title,
+                              style: TextStyle(
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
+                  ],
+                ),
               ),
             ),
+            // Note Editor Section
             Expanded(
               child: Container(
-                margin: const EdgeInsets.all(3.0),
-                padding: const EdgeInsets.all(4.0),
+                margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(12.0),
+                  color: theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(16.0),
                   boxShadow: const [
                     BoxShadow(
                       color: Colors.black12,
-                      blurRadius: 10.0,
+                      blurRadius: 8.0,
                       offset: Offset(0, 4),
                     ),
                   ],
                 ),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 2.0),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.menu),
-                            tooltip: 'Open Drawer',
-                            onPressed: () {
-                              _scaffoldKey.currentState?.openDrawer();
-                            },
+                child: noteProvider.notes.isEmpty
+                    ? Center(
+                        child: Text(
+                          "No notes available. Tap + to create a new note!",
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: theme.colorScheme.onSurface,
                           ),
-                          const Spacer(),
-                          IconButton(
-                            icon: const Icon(Icons.undo),
-                            tooltip: 'Undo',
-                            onPressed: noteProvider.undo,
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.redo),
-                            tooltip: 'Redo',
-                            onPressed: noteProvider.redo,
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            tooltip: 'Delete Note',
-                            onPressed: () => noteProvider.deleteCurrentNote(),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: TextField(
-                          controller: noteProvider.currentNoteController,
-                          maxLines: null,
-                          expands: true,
-                          onChanged: noteProvider.updateCurrentNoteContent,
-                          decoration: const InputDecoration(
-                            hintText: "Write your notes here...",
-                            border: InputBorder.none,
-                          ),
-                          style: const TextStyle(fontSize: 16),
+                          textAlign: TextAlign.center,
                         ),
+                      )
+                    : TextField(
+                        controller: noteProvider.currentNoteController,
+                        maxLines: null,
+                        expands: true,
+                        onChanged: noteProvider.updateCurrentNoteContent,
+                        decoration: const InputDecoration(
+                          hintText: "Write your notes here...",
+                          border: InputBorder.none,
+                        ),
+                        style: theme.textTheme.bodyLarge,
                       ),
-                    ),
-                  ],
-                ),
               ),
             ),
           ],
         ),
+      ),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (_isFabExpanded) ...[
+            FloatingActionButton.small(
+              heroTag: "new_note",
+              onPressed: noteProvider.createNewNote,
+              backgroundColor: theme.colorScheme.primary,
+              child: const Icon(Icons.note_add, color: Colors.white),
+            ),
+            const SizedBox(height: 8),
+            FloatingActionButton.small(
+              heroTag: "undo",
+              onPressed: noteProvider.undo,
+              backgroundColor: theme.colorScheme.primary,
+              child: const Icon(Icons.undo, color: Colors.white),
+            ),
+            const SizedBox(height: 8),
+            FloatingActionButton.small(
+              heroTag: "redo",
+              onPressed: noteProvider.redo,
+              backgroundColor: theme.colorScheme.primary,
+              child: const Icon(Icons.redo, color: Colors.white),
+            ),
+            const SizedBox(height: 8),
+            FloatingActionButton.small(
+              heroTag: "delete",
+              onPressed: noteProvider.deleteCurrentNote,
+              backgroundColor: Colors.redAccent,
+              child: const Icon(Icons.delete, color: Colors.white,),
+            ),
+            const SizedBox(height: 8),
+          ],
+          FloatingActionButton(
+            onPressed: () {
+              setState(() {
+                _isFabExpanded = !_isFabExpanded;
+              });
+            },
+            backgroundColor: theme.colorScheme.primary,
+            child: Icon(_isFabExpanded ? Icons.close : Icons.add, color: Colors.white),
+          ),
+        ],
       ),
     );
   }
