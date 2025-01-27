@@ -88,7 +88,7 @@ class _NoteScreenState extends State<NoteScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Notes",
+          "< NotePad />",
           style: TextStyle(
             color: theme.colorScheme.onPrimary,
             fontWeight: FontWeight.bold,
@@ -116,7 +116,7 @@ class _NoteScreenState extends State<NoteScreen> {
           children: [
             // Custom Tabs Section (Horizontal Buttons)
             Container(
-              color: theme.colorScheme.background,
+              // color: theme.colorScheme.background,
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
