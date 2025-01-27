@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:text_editor/Screens/splash_screen.dart';
 import 'Providers/note_provider.dart';
 import 'Providers/theme_provider.dart';
-import 'Screens/note_screen.dart';
+
 
 void main() {
   runApp(
@@ -56,7 +57,7 @@ class MyApp extends StatelessWidget {
       darkTheme: ThemeData.dark(),
       themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       debugShowCheckedModeBanner: false,
-      home: const NoteScreen(),
+      home: SplashScreen(),
     );
   }
 }
