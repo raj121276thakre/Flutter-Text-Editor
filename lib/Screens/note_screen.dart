@@ -1,5 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:open_filex/open_filex.dart';
 import '../Providers/note_provider.dart';
 import '../Providers/theme_provider.dart';
 
@@ -26,6 +30,52 @@ class _NoteScreenState extends State<NoteScreen> {
 
     if (noteProvider.currentNoteIndex != -1) {
       noteProvider.selectNote(noteProvider.currentNoteIndex);
+    }
+  }
+
+  Future<void> _generateAndOpenPDF(String content, String title) async {
+    try {
+      // Create the PDF document
+      final pdf = pw.Document();
+      pdf.addPage(
+        pw.Page(
+          build: (pw.Context context) => pw.Padding(
+            padding: const pw.EdgeInsets.all(16),
+            child: pw.Text(
+              content,
+              style: const pw.TextStyle(fontSize: 18),
+            ),
+          ),
+        ),
+      );
+
+      // Get the Downloads directory
+      final directory = await getDownloadsDirectory();
+      if (directory == null) {
+        throw Exception("Downloads directory not available");
+      }
+
+      // Save the PDF file
+      final filePath = "${directory.path}/$title.pdf";
+      final file = File(filePath);
+      await file.writeAsBytes(await pdf.save());
+
+      // Open the PDF file
+      await OpenFilex.open(filePath);
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("PDF saved and opened: $title.pdf"),
+        ),
+      );
+    } catch (e) {
+      // Show an error message if something goes wrong
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Failed to save/open PDF: $e"),
+        ),
+      );
     }
   }
 
@@ -112,10 +162,10 @@ class _NoteScreenState extends State<NoteScreen> {
                 ),
               ),
             ),
-            // Note Editor Section
+            // Note Editor Section with Download Button
             Expanded(
               child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                 margin: const EdgeInsets.symmetric(horizontal: 8.0),
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surface,
@@ -128,27 +178,46 @@ class _NoteScreenState extends State<NoteScreen> {
                     ),
                   ],
                 ),
-                child: noteProvider.notes.isEmpty
-                    ? Center(
-                        child: Text(
-                          "No notes available. Tap + to create a new note!",
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: theme.colorScheme.onSurface,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      )
-                    : TextField(
-                        controller: noteProvider.currentNoteController,
-                        maxLines: null,
-                        expands: true,
-                        onChanged: noteProvider.updateCurrentNoteContent,
-                        decoration: const InputDecoration(
-                          hintText: "Write your notes here...",
-                          border: InputBorder.none,
-                        ),
-                        style: theme.textTheme.bodyLarge,
+                child: Stack(
+                  children: [
+                    // TextField for Note Editing
+                    TextField(
+                      controller: noteProvider.notes.isNotEmpty
+                          ? noteProvider.currentNoteController
+                          : null,
+                      maxLines: null,
+                      expands: true,
+                      onChanged: noteProvider.updateCurrentNoteContent,
+                      decoration: const InputDecoration(
+                        hintText: "Write your notes here...",
+                        border: InputBorder.none,
                       ),
+                      style: theme.textTheme.bodyLarge,
+                    ),
+                    // Download Icon Positioned in the Top-Right Corner
+                    if (noteProvider.notes.isNotEmpty)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: IconButton(
+                          onPressed: () {
+                            final currentNote =
+                                noteProvider.notes[noteProvider.currentNoteIndex];
+                            _generateAndOpenPDF(
+                              currentNote.content,
+                              currentNote.title,
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.download,
+                            color: Colors.grey,
+                            size: 28,
+                          ),
+                          tooltip: "Download as PDF",
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -184,7 +253,7 @@ class _NoteScreenState extends State<NoteScreen> {
               heroTag: "delete",
               onPressed: noteProvider.deleteCurrentNote,
               backgroundColor: Colors.redAccent,
-              child: const Icon(Icons.delete, color: Colors.white,),
+              child: const Icon(Icons.delete, color: Colors.white),
             ),
             const SizedBox(height: 8),
           ],
