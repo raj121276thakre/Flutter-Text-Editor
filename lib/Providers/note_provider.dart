@@ -1,4 +1,5 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Models/note.dart';
 import '../Database/note_database.dart';
 
@@ -6,35 +7,25 @@ class NoteProvider with ChangeNotifier {
   List<Note> _notes = [];
   int _currentNoteIndex = -1;
 
-  // Persistent controllers for each note
   final Map<int, TextEditingController> _controllers = {};
-
-  // Undo/Redo stacks
   final List<String> _undoStack = [];
   final List<String> _redoStack = [];
 
-  // Expose notes list
   List<Note> get notes => _notes;
-
-  // Expose the current selected note index
   int get currentNoteIndex => _currentNoteIndex;
 
-  // Provide the TextEditingController for the current note
   TextEditingController get currentNoteController {
     if (_currentNoteIndex == -1) return TextEditingController();
 
-    // Return existing controller or create a new one
     _controllers[_currentNoteIndex] ??= TextEditingController(
         text: _notes[_currentNoteIndex].content);
     return _controllers[_currentNoteIndex]!;
   }
 
-  // Load notes from the database
   Future<void> loadNotesFromDatabase() async {
     final noteMaps = await NoteDatabase.instance.fetchNotes();
     _notes = noteMaps.map((noteMap) => Note.fromJson(noteMap)).toList();
 
-    // Initialize controllers for loaded notes
     for (var i = 0; i < _notes.length; i++) {
       _controllers[i] = TextEditingController(text: _notes[i].content);
     }
@@ -42,7 +33,18 @@ class NoteProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Create a new note
+  Future<void> saveLastEditedNoteIndex() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('lastNoteIndex', _currentNoteIndex);
+  }
+
+  Future<void> loadLastEditedNoteIndex() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.containsKey('lastNoteIndex')) {
+      _currentNoteIndex = prefs.getInt('lastNoteIndex') ?? -1;
+    }
+  }
+
   void createNewNote() async {
     final newNote = Note(
       title: 'Note ${_notes.length + 1}',
@@ -52,32 +54,46 @@ class NoteProvider with ChangeNotifier {
     newNote.id = noteId;
     _notes.insert(0, newNote);
 
-    // Create a controller for the new note
     _controllers[0] = TextEditingController();
     _currentNoteIndex = 0;
 
     notifyListeners();
+    await saveLastEditedNoteIndex();
   }
 
-  // Update the content of the current note
   void updateCurrentNoteContent(String content) async {
     if (_currentNoteIndex != -1) {
-      // Save the current state for undo
       _undoStack.add(_notes[_currentNoteIndex].content);
       _redoStack.clear();
 
       final note = _notes[_currentNoteIndex];
       note.content = content;
 
-      // Update the content in the controller
-      _controllers[_currentNoteIndex]?.text = content;
+      final controller = _controllers[_currentNoteIndex];
+      final cursorPosition = controller?.selection;
+
+      if (controller != null) {
+        controller.text = content;
+
+        if (cursorPosition != null) {
+          controller.selection = cursorPosition;
+        }
+      }
 
       await NoteDatabase.instance.updateNote(note.id!, note.toJson());
       notifyListeners();
+      await saveLastEditedNoteIndex();
     }
   }
 
-  // Undo the last change
+  void selectNote(int index) async {
+    _currentNoteIndex = index;
+    _undoStack.clear();
+    _redoStack.clear();
+    notifyListeners();
+    await saveLastEditedNoteIndex();
+  }
+
   void undo() {
     if (_undoStack.isNotEmpty && _currentNoteIndex != -1) {
       final lastContent = _undoStack.removeLast();
@@ -89,7 +105,6 @@ class NoteProvider with ChangeNotifier {
     }
   }
 
-  // Redo the last undone change
   void redo() {
     if (_redoStack.isNotEmpty && _currentNoteIndex != -1) {
       final redoContent = _redoStack.removeLast();
@@ -101,27 +116,14 @@ class NoteProvider with ChangeNotifier {
     }
   }
 
-  // Select a specific note by its index
-  void selectNote(int index) {
-    _currentNoteIndex = index;
-    _undoStack.clear();
-    _redoStack.clear();
-    notifyListeners();
-  }
-
-  // Delete the current note
   void deleteCurrentNote() async {
     if (_currentNoteIndex != -1) {
       final noteToDelete = _notes[_currentNoteIndex];
-
-      // Remove the note from the database
       await NoteDatabase.instance.deleteNote(noteToDelete.id!);
 
-      // Remove the note and controller from the local state
       _notes.removeAt(_currentNoteIndex);
       _controllers.remove(_currentNoteIndex);
 
-      // Reset the current note index
       _currentNoteIndex = _notes.isEmpty ? -1 : 0;
 
       notifyListeners();

@@ -20,8 +20,13 @@ class _NoteScreenState extends State<NoteScreen> {
   }
 
   Future<void> _loadNotes() async {
-    await Provider.of<NoteProvider>(context, listen: false)
-        .loadNotesFromDatabase();
+    final noteProvider = Provider.of<NoteProvider>(context, listen: false);
+    await noteProvider.loadNotesFromDatabase();
+    await noteProvider.loadLastEditedNoteIndex();
+
+    if (noteProvider.currentNoteIndex != -1) {
+      noteProvider.selectNote(noteProvider.currentNoteIndex);
+    }
   }
 
   @override
@@ -35,18 +40,6 @@ class _NoteScreenState extends State<NoteScreen> {
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
-              // DrawerHeader(
-              //   decoration: BoxDecoration(
-              //     color: Theme.of(context).colorScheme.primary,
-              //   ),
-              //   child: const Text(
-              //     'Settings',
-              //     style: TextStyle(
-              //       color: Colors.white,
-              //       fontSize: 20,
-              //     ),
-              //   ),
-              // ),
               SwitchListTile(
                 title: const Text('Dark Mode'),
                 value: Provider.of<ThemeProvider>(context).isDarkMode,
