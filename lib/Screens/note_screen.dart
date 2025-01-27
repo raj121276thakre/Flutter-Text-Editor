@@ -87,6 +87,18 @@ class _NoteScreenState extends State<NoteScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+              icon: Icon(Icons.menu, color: theme.colorScheme.onPrimary),
+              onPressed: () {
+                Scaffold.of(context)
+                    .openDrawer(); // Use the correct context to open the drawer
+              },
+              tooltip: "Menu",
+            );
+          },
+        ),
         title: Text(
           " NotePad App",
           style: TextStyle(
@@ -112,6 +124,63 @@ class _NoteScreenState extends State<NoteScreen> {
             },
           ),
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary,
+              ),
+              child: Column(
+           
+            children: [
+              ClipOval(
+                child: Image.asset(
+                  "assets/icon/icon.png", // Path to your custom image
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.cover,
+                ),
+              ),
+          
+              Text(
+                'NotePad App',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onPrimary),
+              ),
+            ],
+          ),
+            ),
+            ListTile(
+              leading: Icon(Icons.note_add),
+              title: Text('Create New Note'),
+              onTap: () {
+                Navigator.pop(context);
+                noteProvider.createNewNote();
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Settings'),
+              onTap: () {
+                Navigator.pop(context);
+                // Add navigation to Settings screen if needed
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.info),
+              title: Text('About'),
+              onTap: () {
+                Navigator.pop(context);
+                // Add navigation to About screen if needed
+              },
+            ),
+          ],
+        ),
       ),
       body: SafeArea(
         child: noteProvider.notes.isEmpty
@@ -175,7 +244,8 @@ class _NoteScreenState extends State<NoteScreen> {
                                         side: BorderSide(
                                           color: isSelected
                                               ? theme.colorScheme.primary
-                                              : const Color.fromARGB(255, 27, 26, 26),
+                                              : const Color.fromARGB(
+                                                  255, 27, 26, 26),
                                         ),
                                       ),
                                       elevation: 0,
@@ -188,7 +258,6 @@ class _NoteScreenState extends State<NoteScreen> {
                                         fontWeight: isSelected
                                             ? FontWeight.bold
                                             : FontWeight.normal,
-                                        
                                       ),
                                     ),
                                   ),
