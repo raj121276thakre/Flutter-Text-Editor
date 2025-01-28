@@ -53,4 +53,13 @@ class NoteDatabase {
       whereArgs: [id], // Arguments for the WHERE clause
     );
   }
+
+
+ // Add the method to delete all notes
+  Future<void> deleteAllNotes() async {
+    final db = await instance.database;
+    await db.delete('notes'); // This will delete all rows from the 'notes' table
+  }
+
+
 }

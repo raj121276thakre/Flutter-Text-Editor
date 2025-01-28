@@ -129,4 +129,23 @@ class NoteProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+
+ // Add method to delete all notes
+  Future<void> deleteAllNotes() async {
+    // Clear the in-memory list
+    _notes.clear();
+    _controllers.clear();
+    _currentNoteIndex = -1;
+
+    // Delete all notes from the database
+    await NoteDatabase.instance.deleteAllNotes();
+
+    // Notify listeners to update the UI
+    notifyListeners();
+  }
+
+
+
+
 }
