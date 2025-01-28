@@ -20,13 +20,102 @@ class _NoteScreenState extends State<NoteScreen> {
   double _currentFontSize = 16.0; // Track font size
   bool _isBold = false; // Track bold toggle
   bool _isItalic = false; // Track italic toggle
-  Color _currentFillColor = Colors.black; // Track text fill color
+  // Color _currentFillColor = Colors.black; // Track text fill color
 
   @override
   void initState() {
     super.initState();
     _loadNotes();
   }
+
+ void _showThemeDialog(BuildContext context) {
+  final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Choose Theme'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.wb_sunny),
+              title: Text('Default Theme'), // Your custom theme
+              onTap: () {
+                themeProvider.setTheme(themeProvider.defaultTheme); // Set to your default theme
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.light_mode),
+              title: Text('Light Theme'),
+              onTap: () {
+                themeProvider.setTheme(themeProvider.lightTheme); // Set to light theme
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.dark_mode),
+              title: Text('Dark Theme'),
+              onTap: () {
+                themeProvider.setTheme(themeProvider.darkTheme); // Set to dark theme
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.palette),
+              title: Text('Blue Theme'),
+              onTap: () {
+                themeProvider.setTheme(themeProvider.blueTheme); // Set to blue theme
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.palette),
+              title: Text('Green Theme'),
+              onTap: () {
+                themeProvider.setTheme(themeProvider.greenTheme); // Set to green theme
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.palette),
+              title: Text('Yellow Theme'),
+              onTap: () {
+                themeProvider.setTheme(themeProvider.yellowTheme); // Set to yellow theme
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.palette),
+              title: Text('Orange Theme'),
+              onTap: () {
+                themeProvider.setTheme(themeProvider.orangeTheme); // Set to orange theme
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.palette),
+              title: Text('Pink Theme'),
+              onTap: () {
+                themeProvider.setTheme(themeProvider.pinkTheme); // Set to pink theme
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
   Future<void> _loadNotes() async {
     final noteProvider = Provider.of<NoteProvider>(context, listen: false);
@@ -125,7 +214,8 @@ class _NoteScreenState extends State<NoteScreen> {
                 ? "Switch to Light Mode"
                 : "Switch to Dark Mode",
             onPressed: () {
-              themeProvider.toggleTheme(!themeProvider.isDarkMode);
+              //themeProvider.toggleTheme(!themeProvider.isDarkMode);
+              _showThemeDialog(context);
             },
           ),
         ],
@@ -172,6 +262,13 @@ class _NoteScreenState extends State<NoteScreen> {
               onTap: () {
                 Navigator.pop(context);
                 // Add navigation to Settings screen if needed
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.palette),
+              title: Text('Theme Settings'),
+              onTap: () {
+                _showThemeDialog(context);
               },
             ),
             ListTile(
@@ -229,41 +326,60 @@ class _NoteScreenState extends State<NoteScreen> {
                             ...List.generate(
                               noteProvider.notes.length,
                               (index) {
-                                final isSelected =
-                                    index == noteProvider.currentNoteIndex;
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6.0),
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          theme.colorScheme.background,
-                                      foregroundColor: isSelected
-                                          ? theme.colorScheme.onPrimary
-                                          : theme.colorScheme.onSurface,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        side: BorderSide(
-                                          color: isSelected
-                                              ? theme.colorScheme.onPrimary
-                                              : const Color.fromARGB(
-                                                  255, 27, 26, 26),
+                                // Reverse the order of notes
+                                final reversedIndex =
+                                    noteProvider.notes.length - 1 - index;
+                                final isSelected = reversedIndex ==
+                                    noteProvider.currentNoteIndex;
+
+                                return TweenAnimationBuilder<double>(
+                                  duration: const Duration(milliseconds: 300),
+                                  tween: Tween(
+                                    begin: 1.0,
+                                    end: isSelected ? 1.1 : 1.0, // Scale effect
+                                  ),
+                                  builder: (context, scale, child) {
+                                    return Transform.scale(
+                                      scale: scale,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 6.0, vertical: 4),
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: isSelected
+                                                ? theme.colorScheme.primary
+                                                : theme.colorScheme.background,
+                                            foregroundColor: isSelected
+                                                ? theme.colorScheme.onPrimary
+                                                : theme.colorScheme.onSurface,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              side: BorderSide(
+                                                color: isSelected
+                                                    ? theme
+                                                        .colorScheme.onPrimary
+                                                    : const Color.fromARGB(
+                                                        255, 27, 26, 26),
+                                              ),
+                                            ),
+                                            elevation: 0,
+                                          ),
+                                          onPressed: () => noteProvider
+                                              .selectNote(reversedIndex),
+                                          child: Text(
+                                            noteProvider
+                                                .notes[reversedIndex].title,
+                                            style: TextStyle(
+                                              fontWeight: isSelected
+                                                  ? FontWeight.bold
+                                                  : FontWeight.normal,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                      elevation: 0,
-                                    ),
-                                    onPressed: () =>
-                                        noteProvider.selectNote(index),
-                                    child: Text(
-                                      noteProvider.notes[index].title,
-                                      style: TextStyle(
-                                        fontWeight: isSelected
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                      ),
-                                    ),
-                                  ),
+                                    );
+                                  },
                                 );
                               },
                             ),
@@ -275,7 +391,7 @@ class _NoteScreenState extends State<NoteScreen> {
                     // Note Editor Section with Download Button
                     Expanded(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        padding: const EdgeInsets.only(left: 16, right: 16),
                         decoration: BoxDecoration(
                           color: theme.colorScheme.surface,
                           borderRadius: BorderRadius.only(
@@ -292,27 +408,31 @@ class _NoteScreenState extends State<NoteScreen> {
                         child: Stack(
                           children: [
                             // TextField for Note Editing
-                            TextField(
-                              controller: noteProvider.notes.isNotEmpty
-                                  ? noteProvider.currentNoteController
-                                  : null,
-                              maxLines: null,
-                              expands: true,
-                              onChanged: noteProvider.updateCurrentNoteContent,
-                              textAlign: _currentTextAlign, // Apply alignment
-                              style: TextStyle(
-                                fontSize: _currentFontSize, // Apply font size
-                                fontWeight: _isBold
-                                    ? FontWeight.bold
-                                    : FontWeight.normal, // Apply bold
-                                fontStyle: _isItalic
-                                    ? FontStyle.italic
-                                    : FontStyle.normal, // Apply italic
-                                color: _currentFillColor, // Apply fill color
-                              ),
-                              decoration: const InputDecoration(
-                                hintText: "Write your notes here...",
-                                border: InputBorder.none,
+                            Padding(
+                              padding: const EdgeInsets.only(top: 18.0),
+                              child: TextField(
+                                controller: noteProvider.notes.isNotEmpty
+                                    ? noteProvider.currentNoteController
+                                    : null,
+                                maxLines: null,
+                                expands: true,
+                                onChanged:
+                                    noteProvider.updateCurrentNoteContent,
+                                textAlign: _currentTextAlign, // Apply alignment
+                                style: TextStyle(
+                                  fontSize: _currentFontSize, // Apply font size
+                                  fontWeight: _isBold
+                                      ? FontWeight.bold
+                                      : FontWeight.normal, // Apply bold
+                                  fontStyle: _isItalic
+                                      ? FontStyle.italic
+                                      : FontStyle.normal, // Apply italic
+                                  //color: _currentFillColor, // Apply fill color
+                                ),
+                                decoration: const InputDecoration(
+                                  hintText: "Write your notes here...",
+                                  border: InputBorder.none,
+                                ),
                               ),
                             ),
                             // Download Icon Positioned in the Top-Right Corner
@@ -348,14 +468,12 @@ class _NoteScreenState extends State<NoteScreen> {
               ),
       ),
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 55.0, right: 8.0),
+        padding: const EdgeInsets.only(bottom: 20.0, right: 8.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             if (_isFabExpanded) ...[
-
-              
               FloatingActionButton.small(
                 heroTag: "new_note",
                 onPressed: noteProvider.createNewNote,
@@ -380,11 +498,10 @@ class _NoteScreenState extends State<NoteScreen> {
               FloatingActionButton.small(
                 heroTag: "delete",
                 onPressed: noteProvider.deleteCurrentNote,
-                backgroundColor: Colors.redAccent,
+                backgroundColor: theme.colorScheme.primary,
                 child: const Icon(Icons.delete, color: Colors.white),
               ),
               const SizedBox(height: 8),
-              
             ],
             FloatingActionButton(
               onPressed: () {
