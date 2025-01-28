@@ -4,6 +4,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:open_filex/open_filex.dart';
+import 'package:text_editor/Constants/strings.dart';
+import 'package:text_editor/Screens/about_screen.dart';
 import '../Providers/note_provider.dart';
 import '../Providers/theme_provider.dart';
 
@@ -28,94 +30,101 @@ class _NoteScreenState extends State<NoteScreen> {
     _loadNotes();
   }
 
- void _showThemeDialog(BuildContext context) {
-  final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+  void _showThemeDialog(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
 
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: Text('Choose Theme'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(Icons.wb_sunny),
-              title: Text('Default Theme'), // Your custom theme
-              onTap: () {
-                themeProvider.setTheme(themeProvider.defaultTheme); // Set to your default theme
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.light_mode),
-              title: Text('Light Theme'),
-              onTap: () {
-                themeProvider.setTheme(themeProvider.lightTheme); // Set to light theme
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.dark_mode),
-              title: Text('Dark Theme'),
-              onTap: () {
-                themeProvider.setTheme(themeProvider.darkTheme); // Set to dark theme
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.palette),
-              title: Text('Blue Theme'),
-              onTap: () {
-                themeProvider.setTheme(themeProvider.blueTheme); // Set to blue theme
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.palette),
-              title: Text('Green Theme'),
-              onTap: () {
-                themeProvider.setTheme(themeProvider.greenTheme); // Set to green theme
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.palette),
-              title: Text('Yellow Theme'),
-              onTap: () {
-                themeProvider.setTheme(themeProvider.yellowTheme); // Set to yellow theme
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.palette),
-              title: Text('Orange Theme'),
-              onTap: () {
-                themeProvider.setTheme(themeProvider.orangeTheme); // Set to orange theme
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.palette),
-              title: Text('Pink Theme'),
-              onTap: () {
-                themeProvider.setTheme(themeProvider.pinkTheme); // Set to pink theme
-                Navigator.pop(context);
-              },
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Choose Theme'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.wb_sunny),
+                title: Text('Default Theme'), // Your custom theme
+                onTap: () {
+                  themeProvider.setTheme(
+                      themeProvider.defaultTheme); // Set to your default theme
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.light_mode),
+                title: Text('Light Theme'),
+                onTap: () {
+                  themeProvider
+                      .setTheme(themeProvider.lightTheme); // Set to light theme
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.dark_mode),
+                title: Text('Dark Theme'),
+                onTap: () {
+                  themeProvider
+                      .setTheme(themeProvider.darkTheme); // Set to dark theme
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.palette),
+                title: Text('Blue Theme'),
+                onTap: () {
+                  themeProvider
+                      .setTheme(themeProvider.blueTheme); // Set to blue theme
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.palette),
+                title: Text('Green Theme'),
+                onTap: () {
+                  themeProvider
+                      .setTheme(themeProvider.greenTheme); // Set to green theme
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.palette),
+                title: Text('Yellow Theme'),
+                onTap: () {
+                  themeProvider.setTheme(
+                      themeProvider.yellowTheme); // Set to yellow theme
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.palette),
+                title: Text('Orange Theme'),
+                onTap: () {
+                  themeProvider.setTheme(
+                      themeProvider.orangeTheme); // Set to orange theme
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.palette),
+                title: Text('Pink Theme'),
+                onTap: () {
+                  themeProvider
+                      .setTheme(themeProvider.pinkTheme); // Set to pink theme
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel'),
             ),
           ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
+        );
+      },
+    );
+  }
 
   Future<void> _loadNotes() async {
     final noteProvider = Provider.of<NoteProvider>(context, listen: false);
@@ -194,7 +203,7 @@ class _NoteScreenState extends State<NoteScreen> {
           },
         ),
         title: Text(
-          " NotePad App",
+        AppStrings.appName,
           style: TextStyle(
             color: theme.colorScheme.onPrimary,
             fontWeight: FontWeight.bold,
@@ -232,14 +241,14 @@ class _NoteScreenState extends State<NoteScreen> {
                 children: [
                   ClipOval(
                     child: Image.asset(
-                      "assets/icon/icon.png", // Path to your custom image
+                      AppStrings.appIcon,// Path to your custom image
                       width: 100,
                       height: 100,
                       fit: BoxFit.cover,
                     ),
                   ),
                   Text(
-                    'NotePad App',
+                    AppStrings.appName,
                     style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -272,13 +281,17 @@ class _NoteScreenState extends State<NoteScreen> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.info),
-              title: Text('About'),
-              onTap: () {
-                Navigator.pop(context);
-                // Add navigation to About screen if needed
-              },
-            ),
+                leading: Icon(Icons.info),
+                title: Text('About'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            AboutScreen()), // Navigate to the About Screen
+                  );
+                }),
           ],
         ),
       ),

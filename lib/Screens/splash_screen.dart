@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:text_editor/Constants/strings.dart';
 import 'note_screen.dart'; // Adjust the import path if necessary.
 
 class SplashScreen extends StatefulWidget {
@@ -50,7 +51,7 @@ class _SplashScreenState extends State<SplashScreen>
             children: [
               ClipOval(
                 child: Image.asset(
-                  "assets/icon/icon.png", // Path to your custom image
+                   AppStrings.appIcon, // Path to your custom image
                   width: 100,
                   height: 100,
                   fit: BoxFit.cover,
@@ -58,12 +59,20 @@ class _SplashScreenState extends State<SplashScreen>
               ),
               const SizedBox(height: 20),
               Text(
-                'NotePad App',
+                AppStrings.appName,
                 style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.primary),
               ),
+              // SizedBox(height: 100,),
+              //  Text(
+              //   AppStrings.appVersion,
+              //   style: TextStyle(
+              //       fontSize: 24,
+              //       fontWeight: FontWeight.normal,
+              //       color: theme.colorScheme.primary),
+              // ),
             ],
           ),
         ),
