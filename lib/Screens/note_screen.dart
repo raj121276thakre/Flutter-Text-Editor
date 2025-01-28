@@ -353,7 +353,14 @@ class _NoteScreenState extends State<NoteScreen> {
             _isFabExpanded = !_isFabExpanded;
           });
         },
-        createNewNote: noteProvider.createNewNote,
+        createNewNote: () {
+          noteProvider.createNewNote();
+
+          // Ensure the FAB is expanded after creating a note
+          setState(() {
+            _isFabExpanded = true;
+          });
+        },
         undo: noteProvider.undo,
         redo: noteProvider.redo,
         deleteCurrentNote: noteProvider.deleteCurrentNote,

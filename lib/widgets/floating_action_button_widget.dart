@@ -49,6 +49,13 @@ class FloatingActionButtonWidget extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             FloatingActionButton.small(
+              heroTag: "sticky_note",
+             onPressed: () =>   createNewNote(),      //createStickyNote(),......................
+              backgroundColor: theme.colorScheme.primary,
+              child: const Icon(Icons.sticky_note_2, color: Colors.white),
+            ),
+            const SizedBox(height: 8),
+            FloatingActionButton.small(
               heroTag: "undo",
               onPressed: () => undo(),
               backgroundColor: theme.colorScheme.primary,
@@ -82,17 +89,16 @@ class FloatingActionButtonWidget extends StatelessWidget {
             const SizedBox(height: 8),
           ],
 
-          // Show the "Create Note" button if there are no notes or when the FAB is expanded
-          if (!hasNotes || isFabExpanded) ...[
-            FloatingActionButton(
-              onPressed: () {
-                onFabExpandedChange();
-              },
-              backgroundColor: theme.colorScheme.primary,
-              child: Icon(isFabExpanded ? Icons.close : Icons.add,
-                  color: Colors.white),
-            ),
-          ],
+         // The main FAB (always visible)
+          FloatingActionButton(
+            onPressed: () {
+              onFabExpandedChange(); // Toggle expansion state
+            },
+            backgroundColor: theme.colorScheme.primary,
+            child: Icon(isFabExpanded ? Icons.close : Icons.add,
+                color: Colors.white),
+          ),
+          
         ],
       ),
     );
