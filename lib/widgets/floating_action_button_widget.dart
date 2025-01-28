@@ -9,6 +9,7 @@ class FloatingActionButtonWidget extends StatelessWidget {
   final Function redo;
   final Function deleteCurrentNote;
   final Function downloadCurrentNote;
+  final bool hasNotes; // New parameter to check if there are any notes
 
   const FloatingActionButtonWidget({
     Key? key,
@@ -19,6 +20,7 @@ class FloatingActionButtonWidget extends StatelessWidget {
     required this.redo,
     required this.deleteCurrentNote,
     required this.downloadCurrentNote,
+    required this.hasNotes, // Added to check if notes exist
   }) : super(key: key);
 
   @override
@@ -31,16 +33,16 @@ class FloatingActionButtonWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (isFabExpanded) ...[
-              FloatingActionButton.small(
+          // Show these buttons only if there are notes (hasNotes is true)
+          if (isFabExpanded && hasNotes) ...[
+            FloatingActionButton.small(
               heroTag: "generate_pdf",
               onPressed: () => downloadCurrentNote(),
               backgroundColor: theme.colorScheme.primary,
-              child: const Icon( Icons.download, color: Colors.white),
+              child: const Icon(Icons.download, color: Colors.white),
             ),
-            const SizedBox(height: 8),
             FloatingActionButton.small(
-              heroTag: "new_note",
+              heroTag: "create_note",
               onPressed: () => createNewNote(),
               backgroundColor: theme.colorScheme.primary,
               child: const Icon(Icons.note_add, color: Colors.white),
@@ -68,14 +70,29 @@ class FloatingActionButtonWidget extends StatelessWidget {
             ),
             const SizedBox(height: 8),
           ],
-          FloatingActionButton(
-            onPressed: () {
-              onFabExpandedChange();
-            },
-            backgroundColor: theme.colorScheme.primary,
-            child: Icon(isFabExpanded ? Icons.close : Icons.add,
-                color: Colors.white),
-          ),
+
+          // Only show the "Create Note" button if no notes exist
+          if (isFabExpanded && !hasNotes) ...[
+            FloatingActionButton.small(
+              heroTag: "create_note",
+              onPressed: () => createNewNote(),
+              backgroundColor: theme.colorScheme.primary,
+              child: const Icon(Icons.note_add, color: Colors.white),
+            ),
+            const SizedBox(height: 8),
+          ],
+
+          // Show the "Create Note" button if there are no notes or when the FAB is expanded
+          if (!hasNotes || isFabExpanded) ...[
+            FloatingActionButton(
+              onPressed: () {
+                onFabExpandedChange();
+              },
+              backgroundColor: theme.colorScheme.primary,
+              child: Icon(isFabExpanded ? Icons.close : Icons.add,
+                  color: Colors.white),
+            ),
+          ],
         ],
       ),
     );

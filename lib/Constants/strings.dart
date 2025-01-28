@@ -4,6 +4,7 @@ class AppStrings {
   static const String appName = 'NotePad App';
   static const String appVersion = 'Version 1.0.0';
   static const String appIcon = 'assets/icon/icon.png';
+  static const String noNotesImage = 'assets/images/no_notes.png';
 
   // About the app
   static const String aboutAppDescription =

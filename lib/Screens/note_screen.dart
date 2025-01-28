@@ -8,6 +8,7 @@ import 'package:text_editor/Constants/strings.dart';
 import 'package:text_editor/widgets/drawer_widget.dart';
 import 'package:text_editor/widgets/floating_action_button_widget.dart';
 import 'package:text_editor/widgets/horizontal_scroll_widget.dart';
+import 'package:text_editor/widgets/no_notes_widget.dart';
 import 'package:text_editor/widgets/note_editor_widget.dart';
 
 import '../Providers/note_provider.dart';
@@ -33,14 +34,15 @@ class _NoteScreenState extends State<NoteScreen> {
     _loadNotes();
   }
 
-   // Show confirmation dialog before deleting all notes
+  // Show confirmation dialog before deleting all notes
   void _confirmDeleteAllNotes(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Delete All Notes'),
-          content: Text('Are you sure you want to delete all notes? This action cannot be undone.'),
+          content: Text(
+              'Are you sure you want to delete all notes? This action cannot be undone.'),
           actions: <Widget>[
             TextButton(
               child: Text('Cancel'),
@@ -61,7 +63,6 @@ class _NoteScreenState extends State<NoteScreen> {
       },
     );
   }
-
 
   void _showThemeBottomDialog(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
@@ -84,7 +85,7 @@ class _NoteScreenState extends State<NoteScreen> {
               ),
               ListTile(
                 leading: Icon(Icons.light_mode),
-                title: Text('Light Theme'),
+                title: Text('Purple Theme'),
                 onTap: () {
                   themeProvider.setTheme(themeProvider.lightTheme);
                   Navigator.pop(context);
@@ -324,38 +325,14 @@ class _NoteScreenState extends State<NoteScreen> {
       drawer: DrawerWidget(
         noteProvider: noteProvider,
         showThemeDialog: _showThemeAlertDialog,
-          deleteAllNotes: _confirmDeleteAllNotes, // Pass the delete function
+        deleteAllNotes: _confirmDeleteAllNotes, // Pass the delete function
       ),
       body: SafeArea(
         child: noteProvider.notes.isEmpty
             ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ClipOval(
-                      child: Image.asset(
-                        'assets/images/no_notes.png',
-                        height: 200,
-                        width: 200,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      "No notes created",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      "Please create a note by clicking on +",
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  ],
-                ),
-              )
+                child:
+                    const NoNotesWidget() // Use the new widget when there are no notes
+                )
             : Column(
                 children: [
                   HorizontalScrollWidget(noteProvider: noteProvider),
@@ -387,6 +364,8 @@ class _NoteScreenState extends State<NoteScreen> {
             currentNote.title,
           );
         },
+        hasNotes: noteProvider
+            .notes.isNotEmpty, // Pass the flag to check if there are notes
       ),
     );
   }
