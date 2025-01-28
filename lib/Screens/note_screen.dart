@@ -20,7 +20,7 @@ class _NoteScreenState extends State<NoteScreen> {
   double _currentFontSize = 16.0; // Track font size
   bool _isBold = false; // Track bold toggle
   bool _isItalic = false; // Track italic toggle
-  Color _currentFillColor = Colors.transparent; // Track text fill color
+  Color _currentFillColor = Colors.black; // Track text fill color
 
   @override
   void initState() {
@@ -272,8 +272,6 @@ class _NoteScreenState extends State<NoteScreen> {
                       ),
                     ),
 
-                   
-
                     // Note Editor Section with Download Button
                     Expanded(
                       child: Container(
@@ -344,170 +342,7 @@ class _NoteScreenState extends State<NoteScreen> {
                       ),
                     ),
 
-
-
-
- // Font Options Toolbar
-                    Container(
-                      padding: const EdgeInsets.all(8.0),
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(
-                            255, 247, 246, 246), // Background for the toolbar
-                       // Rounded corners
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 6.0,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment
-                            .spaceBetween, // Distribute evenly
-                        children: [
-                          // Bold Button
-                          IconButton(
-                            icon: Icon(
-                              Icons.format_bold,
-                              color: _isBold ? Colors.blue : Colors.black,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isBold = !_isBold;
-                              });
-                            },
-                          ),
-                    
-                          // Italic Button
-                          IconButton(
-                            icon: Icon(
-                              Icons.format_italic,
-                              color: _isItalic ? Colors.blue : Colors.black,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isItalic = !_isItalic;
-                              });
-                            },
-                          ),
-                    
-                    // Fill Color Dropdown
-                          DropdownButton<Color>(
-                            value: _currentFillColor,
-                            items: [
-                              Colors.transparent,
-                              Colors.black,
-                              Colors.yellow,
-                              Colors.green,
-                              Colors.blue,
-                              Colors.red,
-                              Colors.purple,
-                              Colors.orange,
-                              Colors.pink,
-                              Colors.teal,
-                              Colors.brown,
-                              Colors.grey,
-                              Colors.cyan,
-                            ].map((color) {
-                              return DropdownMenuItem<Color>(
-                                value: color,
-                                child: Container(
-                                  width: 24,
-                                  height: 24,
-                                  decoration: BoxDecoration(
-                                    color: color,
-                                    border: Border.all(
-                                        color: Colors
-                                            .black12), // Optional border for visibility
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (color) {
-                              setState(() {
-                                _currentFillColor = color ??
-                                    Colors
-                                        .transparent; // Ensure a valid fallback
-                              });
-                            },
-                          ),
-                    
-                          // Font Size Dropdown
-                          DropdownButton<double>(
-                            value: _currentFontSize,
-                            items: [12, 14, 16, 18, 20, 24]
-                                .map((size) => DropdownMenuItem(
-                                      value: size.toDouble(),
-                                      child: Text(
-                                        "$size",
-                                        style: TextStyle(fontSize: 14.0),
-                                      ),
-                                    ))
-                                .toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                if (value != null) _currentFontSize = value;
-                              });
-                            },
-                          ),
-                    
-                          // Alignment Dropdown
-                          DropdownButton<TextAlign>(
-                            value: _currentTextAlign,
-                            items: [
-                              DropdownMenuItem(
-                                value: TextAlign.left,
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.format_align_left, size: 18),
-                                    SizedBox(width: 6),
-                                    Text("Left"),
-                                  ],
-                                ),
-                              ),
-                              DropdownMenuItem(
-                                value: TextAlign.center,
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.format_align_center, size: 18),
-                                    SizedBox(width: 6),
-                                    Text("Center"),
-                                  ],
-                                ),
-                              ),
-                              DropdownMenuItem(
-                                value: TextAlign.right,
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.format_align_right, size: 18),
-                                    SizedBox(width: 6),
-                                    Text("Right"),
-                                  ],
-                                ),
-                              ),
-                              DropdownMenuItem(
-                                value: TextAlign.justify,
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.format_align_justify,
-                                        size: 18),
-                                    SizedBox(width: 6),
-                                    Text("Justify"),
-                                  ],
-                                ),
-                              ),
-                            ],
-                            onChanged: (align) {
-                              setState(() {
-                                if (align != null) _currentTextAlign = align;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-
+                    // Font Options Toolbar
                   ],
                 ),
               ),
@@ -519,6 +354,8 @@ class _NoteScreenState extends State<NoteScreen> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             if (_isFabExpanded) ...[
+
+              
               FloatingActionButton.small(
                 heroTag: "new_note",
                 onPressed: noteProvider.createNewNote,
@@ -547,6 +384,7 @@ class _NoteScreenState extends State<NoteScreen> {
                 child: const Icon(Icons.delete, color: Colors.white),
               ),
               const SizedBox(height: 8),
+              
             ],
             FloatingActionButton(
               onPressed: () {
